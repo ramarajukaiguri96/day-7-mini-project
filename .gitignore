@@ -1,0 +1,29 @@
+# Python virtual environment — created locally, not part of the project source
+venv/
+.venv/
+
+# Python compiled bytecode — auto-generated, not needed in the repo
+__pycache__/
+*.pyc
+*.pyo
+
+# Runtime data file — auto-created when the app first runs
+# Gitignored so each user starts with their own fresh task list
+data/tasks.json
+
+# Keep the data directory itself tracked (so it exists after cloning)
+!data/.gitkeep
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Test coverage reports (if ever generated)
+.coverage
+htmlcov/
