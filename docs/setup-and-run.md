@@ -14,7 +14,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/<your-username>/day-7-mini-project.git
+git clone https://github.com/ramarajukaiguri96/day-7-mini-project.git
 cd day-7-mini-project
 
 # Run the application
@@ -35,7 +35,7 @@ and launches the application.
 
 ```bash
 # Clone the repository
-git clone https://github.com/<your-username>/day-7-mini-project.git
+git clone https://github.com/ramarajukaiguri96/day-7-mini-project.git
 cd day-7-mini-project
 
 # Run the application
