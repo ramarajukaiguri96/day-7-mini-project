@@ -8,7 +8,10 @@ with invented issues.
 
 ---
 
-## At Initial Release
+## At Release (Commit 7)
 
-No known issues at this time.
-(This file will be updated if real issues are discovered during testing.)
+No known issues.
+
+All 92 automated tests pass. All manual verification scenarios behave
+as documented in docs/test-cases.md. The application starts, runs, and
+exits cleanly. No crashes observed on any invalid input tested.
