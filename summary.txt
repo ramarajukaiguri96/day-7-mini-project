@@ -1,0 +1,225 @@
+PYTHON FILES SUMMARY
+====================
+Project : Task Manager CLI
+Date    : 2026-09-13
+
+This file explains what each Python file does, in plain simple language.
+No complicated terms. Written so you can explain it during your presentation.
+
+================================================================================
+1. task.py  —  The Task Blueprint
+================================================================================
+
+What it is:
+  This file defines what a "Task" looks like in the program.
+  Think of it like a form with blank fields: ID, title, priority, due date,
+  description, status, and the date it was created.
+
+What it does:
+  Every time the user adds a task, Python creates a Task object using
+  this blueprint and fills in all the fields.
+
+Functions inside it:
+
+  __init__()
+    This runs automatically when a new task is created.
+    It fills in all the fields. If the user does not give a due date,
+    it stays blank. If no created_at date is given, it uses today's date.
+
+  to_dict()
+    Converts the task into a plain dictionary (like a simple table of
+    key-value pairs). This is needed because Python cannot save a Task
+    object directly to a file — it first has to become a plain dictionary.
+    Example: {"task_id": 1, "title": "Buy milk", "priority": "low", ...}
+
+  from_dict()
+    Does the opposite of to_dict(). When the program reads the saved file,
+    it gets plain dictionaries. This function turns each dictionary back
+    into a proper Task object so the rest of the program can use it.
+
+  is_overdue()
+    Checks three things:
+      1. Does the task have a due date?
+      2. Is that date in the past?
+      3. Is the task still pending (not completed)?
+    If all three are yes, it returns True (the task is overdue).
+    If the task is already completed, it is never considered overdue.
+
+  mark_complete()
+    Simply changes the task's status from "pending" to "completed".
+    If the task is already completed, nothing happens — no error.
+
+  __str__()
+    Produces a short one-line summary of the task for display.
+    Example: [1] Buy milk | low | pending | due: 2026-09-15
+
+================================================================================
+2. storage.py  —  Reading and Writing the File
+================================================================================
+
+What it is:
+  This file is the only part of the program that touches the data file
+  (data/tasks.json). All reading and writing goes through here.
+
+What it does:
+  It saves tasks to the file and loads them back when the program starts.
+
+Functions inside it:
+
+  load_tasks()
+    Opens data/tasks.json and reads all the tasks.
+    Returns a list of Task objects ready to use.
+
+    Three problems it handles without crashing:
+      - File does not exist (first time running) -> returns empty list
+      - File is corrupted or not valid JSON -> warns the user, returns empty list
+      - A single task entry has a missing field -> skips that entry, loads the rest
+
+  save_tasks()
+    Takes the current list of tasks, converts each one to a dictionary,
+    and writes the whole list to data/tasks.json.
+    This is called every time a task is added, completed, or deleted
+    so the file is always up to date.
+
+    Two problems it handles without crashing:
+      - Permission denied (cannot write to the file) -> shows an error message
+      - Other file system error (disk full, bad path) -> shows an error message
+
+    It also creates the data/ folder automatically if it does not exist.
+
+================================================================================
+3. task_manager.py  —  The Business Logic
+================================================================================
+
+What it is:
+  This file contains all the functions that work with the list of tasks.
+  It does not touch the file (that is storage.py's job) and it does not
+  show menus (that is main.py's job). It just processes tasks.
+
+Functions inside it:
+
+  get_next_id()
+    Looks at all existing task IDs and returns the next number to use.
+    Example: if tasks 1, 2, 3 exist, it returns 4.
+    If task 2 was deleted and only 1 and 3 exist, it still returns 4.
+    This makes sure no two tasks ever share the same ID.
+
+  find_task_by_id()
+    Searches the task list for a task with a specific ID.
+    Returns the task if found, or None if no task has that ID.
+    Used by view, complete, and delete to find the right task.
+
+  filter_tasks()
+    Takes the full task list and returns a smaller list based on filters.
+    Example: filter by status="pending" returns only pending tasks.
+    Example: filter by priority="high" returns only high-priority tasks.
+    The original list is not changed — a new filtered list is returned.
+
+  validate_date()
+    Checks whether a date string is in the correct YYYY-MM-DD format.
+    Returns True if the format is correct or if the string is empty
+    (empty means no due date, which is allowed).
+    Returns False for anything else, like "14/09/2026" or "tomorrow".
+
+  get_summary()
+    Counts the tasks and returns four numbers:
+      - Total number of tasks
+      - How many are completed
+      - How many are pending
+      - How many are overdue (pending and past their due date)
+
+  format_task_table()
+    Builds a neat table with columns for ID, Status, Priority, Due Date,
+    and Title. If the list is empty it returns "No tasks found."
+    Overdue tasks get [OVERDUE] added to their title in the table.
+
+================================================================================
+4. main.py  —  The Menu (Entry Point)
+================================================================================
+
+What it is:
+  This is the file you actually run: python3 main.py
+  It shows the menu, reads what the user types, and calls the right
+  function from the other files.
+
+What it does:
+  It is a simple loop: show menu -> read input -> call function -> repeat.
+  It does not contain any task logic itself — it just connects the user
+  to the other files.
+
+Functions inside it:
+
+  main()
+    The starting point of the whole program.
+    Loads the saved tasks from file (using storage.py), then runs the
+    menu loop until the user chooses Exit.
+    Any input that is not 1-8 shows an error message and loops back.
+
+  show_menu()
+    Prints the numbered menu to the terminal.
+    Called at the start of every loop so the user always sees the options.
+
+  prompt_task_id()
+    Asks the user to type a task ID.
+    Checks that the input is a number and that a task with that ID exists.
+    Returns the ID if valid, or None if not.
+    Used by view, complete, and delete.
+
+  add_task()
+    Asks the user for title, priority, due date, and description.
+    Keeps asking for each field until the user gives a valid answer.
+    Then creates a new Task and saves it to the file.
+
+  list_tasks()
+    Calls format_task_table() and prints the result.
+    Shows all tasks in a neat table. If there are none, says so.
+
+  view_task_detail()
+    Asks for a task ID and shows all fields for that task on screen.
+    Shows every detail including description and created date.
+
+  mark_task_complete()
+    Asks for a task ID and marks it as completed.
+    If the task is already complete, tells the user without making changes.
+
+  delete_task()
+    Asks for a task ID, then asks "yes/no" to confirm.
+    Only deletes if the user types "yes". Otherwise cancels.
+
+  filter_tasks_menu()
+    Shows a small sub-menu: filter by status OR filter by priority.
+    Asks for the value to filter by, then displays the matching tasks.
+
+  show_summary()
+    Calls get_summary() and prints the four counts in a simple format.
+
+================================================================================
+HOW THE FILES WORK TOGETHER
+================================================================================
+
+  When you run python3 main.py:
+
+  main.py loads tasks using storage.py, then runs the menu loop.
+  When the user picks an option, main.py calls the right function
+  in task_manager.py. task_manager.py works with Task objects from
+  task.py. After any change, storage.py saves everything back to
+  data/tasks.json.
+
+  Simple flow:
+
+    User types input
+         |
+         v
+      main.py        (reads input, calls functions)
+         |
+         v
+    task_manager.py  (processes the task list)
+         |
+         v
+      task.py        (individual task objects)
+         |
+         v
+     storage.py      (reads/writes the JSON file)
+         |
+         v
+    data/tasks.json  (saved on disk)
